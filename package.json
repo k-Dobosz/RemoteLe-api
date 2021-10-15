@@ -2,9 +2,9 @@
   "name": "remotele-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "start": "env-cmd -f ./config/dev.env nodemon index.js"
+    "start": "env-cmd -f ./config/dev.env nodemon index.ts"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,10 @@
   },
   "homepage": "https://github.com/k-Dobosz/RemoteLe-api#readme",
   "dependencies": {
+    "@types/express": "^4.17.13",
+    "@types/mongoose": "^5.11.97",
+    "@types/morgan": "^1.9.3",
+    "@types/node": "^16.11.0",
     "body-parser": "^1.19.0",
     "env-cmd": "^10.1.0",
     "express": "^4.17.1",
@@ -24,6 +28,8 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.13"
+    "nodemon": "^2.0.13",
+    "ts-node": "^10.3.0",
+    "typescript": "^4.4.4"
   }
 }
