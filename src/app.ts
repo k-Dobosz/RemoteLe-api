@@ -3,12 +3,16 @@ import logger from 'morgan'
 import bodyParser from 'body-parser'
 import mongo from './database/db'
 
+import usersRouter from './routes/users'
+
 const app = express()
 const db = mongo()
 
 app.use(logger('dev'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
+
+app.use('/api/v1/users', usersRouter)
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     res.header('Access-Control-Allow-Origin', '*')
