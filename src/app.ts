@@ -24,4 +24,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next()
 })
 
+app.all('*', (req: Request, res: Response, next: NextFunction) => {
+    res.status(404).json({
+        error: `Unable to find ${req.originalUrl}`
+    })
+})
+
 export { app as default }

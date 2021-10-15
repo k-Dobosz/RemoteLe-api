@@ -1,15 +1,20 @@
 import mongoose, { Document, Model } from 'mongoose'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import crypto from 'crypto'
 
 interface IUser extends Document {
+    fullname: string,
     email: string
     password: string,
-    tokens: Array<object>
+    tokens: Array<object>,
+    resetPasswordToken: string,
+    resetPasswordTokenExpires: Date
 }
 
 interface IUserDocument extends IUser, Document {
-    generateAuthToken(): Promise<String>
+    generateAuthToken(): Promise<String>,
+    generatePasswordResetToken(): Promise<void>
 }
 
 interface UserModel extends Model<IUserDocument> {
@@ -17,6 +22,10 @@ interface UserModel extends Model<IUserDocument> {
 }
 
 const userSchema = new mongoose.Schema<IUserDocument>({
+    fullname: {
+        type: String,
+        required: true
+    },
     email: {
         type: String,
         unique: true,
@@ -32,7 +41,15 @@ const userSchema = new mongoose.Schema<IUserDocument>({
             type: String,
             required: true
         }
-    }]
+    }],
+    resetPasswordToken: {
+        type: String,
+        required: false
+    },
+    resetPasswordTokenExpires: {
+        type: Date,
+        required: false
+    }
 }, { timestamps: true })
 
 userSchema.methods.toJSON = function () {
@@ -64,6 +81,16 @@ userSchema.method('generateAuthToken', async function generateAuthToken() {
     return token
 })
 
+userSchema.method('generatePasswordResetToken', async function generatePasswordResetToken() {
+    const user = this
+    user.resetPasswordToken = await crypto.randomBytes(24).toString('hex')
+    user.resetPasswordTokenExpires = new Date(Date.now() + 180000)
+
+    await user.save()
+
+    return user.resetPasswordToken
+})
+
 userSchema.pre<IUserDocument>('save', async function(next) {
     const user = this
 
@@ -75,4 +102,4 @@ userSchema.pre<IUserDocument>('save', async function(next) {
 
 const User = mongoose.model<IUserDocument, UserModel>('User', userSchema)
 
-export { User as default, UserModel }
+export { User as default, IUserDocument }

@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express'
-import User, { UserModel } from '../models/user'
+import User from '../models/user'
 const router = express.Router()
 
 router.post('/', async (req: Request, res: Response) => {
@@ -21,11 +21,29 @@ router.post('/login', async (req: Request, res: Response) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password)
 
-        const token = user.generateAuthToken()
+        const token = await user.generateAuthToken()
 
         res.status(200).send({ user, token })
     } catch (e) {
         res.status(400).send({
+            error: e
+        })
+    }
+})
+
+router.post('/recover', async (req: Request, res: Response) => {
+    try {
+        const user = await User.findOne({ email: req.body.email })
+
+        if (!user) 
+            return res.status(401).send()
+
+        const token = await user.generatePasswordResetToken()
+
+        res.status(200).send({ resetPasswordToken: token })
+
+    } catch (e) {
+        res.status(500).send({
             error: e
         })
     }
