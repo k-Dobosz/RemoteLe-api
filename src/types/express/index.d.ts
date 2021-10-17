@@ -1,8 +1,8 @@
-import { IUserDocument } from "../models/user";
+import { IUserDocument } from "../../models/user";
 
 declare global {
     namespace Express {
-        export interface Request {
+        interface Request {
             user: IUserDocument,
             token: string
         }
