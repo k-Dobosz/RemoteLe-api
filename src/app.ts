@@ -5,6 +5,7 @@ import mongo from './database/db'
 import cors from 'cors'
 
 import usersRouter from './routes/users'
+import errorMiddleware, { AppError } from './middleware/error'
 
 const app = express()
 const db = mongo()
@@ -19,12 +20,13 @@ app.use(cors({
     optionsSuccessStatus: 204
 }))
 
+
 app.use('/api/v1/users', usersRouter)
 
 app.all('*', (req: Request, res: Response, next: NextFunction) => {
-    res.status(404).json({
-        error: `Unable to find ${req.originalUrl}`
-    })
+    next(new AppError(`Unable to find ${req.originalUrl}`, 404))
 })
+
+app.use(errorMiddleware)
 
 export { app as default }

@@ -2,11 +2,15 @@ import mongoose, { Document, Model } from 'mongoose'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
+import validator from 'validator'
+import { AppError } from '../middleware/error'
 
 interface IUser extends Document {
     fullname: string,
     email: string
     password: string,
+    avatar: BufferConstructor,
+    emailConfirmed: boolean,
     tokens: Array<object>,
     resetPasswordToken: string,
     resetPasswordTokenExpires: Date
@@ -24,17 +28,34 @@ interface UserModel extends Model<IUserDocument> {
 const userSchema = new mongoose.Schema<IUserDocument>({
     fullname: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        match: [/^[a-zA-Z\p{L}]+ [a-zA-Z\p{L}]+$/u, 'Name is invalid.']
     },
     email: {
         type: String,
         unique: true,
         required: true,
-        lowercase: true
+        lowercase: true,
+        trim: true,
+        validate(value: string) {
+            if (!validator.isEmail(value)) {
+                throw new Error('Email is invalid.')
+            }
+        }
     },
     password: {
         type: String,
+        required: true
+    },
+    avatar: {
+        type: Buffer,
+        required: false
+    },
+    emailConfirmed: {
+        type: Boolean,
         required: true,
+        default: false
     },
     tokens: [{
         token: {
@@ -62,11 +83,11 @@ userSchema.methods.toJSON = function () {
 userSchema.static('findByCredentials', async function findByCredentials(email, password) {
     const user = await this.findOne({ email })
 
-    if (!user) throw new Error('Unable to login')
+    if (!user) throw new AppError('Unable to login.', 400)
 
     const isMatch = await bcrypt.compare(password, user.password)
 
-    if (!isMatch) throw new Error('Unable to login')
+    if (!isMatch) throw new AppError('Unable to login.', 400)
 
     return user
 })
