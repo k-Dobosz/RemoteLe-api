@@ -35,7 +35,7 @@ const errorMiddleware = (err: AppError, req: Request, res: Response, next: NextF
         } else if (err.name === 'ValidationError') {
             const errors = Object.values(err.errors).map(el => el.message.replace('.', ''))
 
-            res.status(err.statusCode).send({
+            res.status(400).send({
                 error: `Invalid input data. ${errors.join('. ')}`
             })
         }
