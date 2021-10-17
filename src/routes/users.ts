@@ -9,9 +9,12 @@ router.post('/', async (req: Request, res: Response) => {
         await user.save()
         const token = user.generateAuthToken()
 
-        res.status(201).send({ user, token })
+        res.status(201).send({ user: {
+            fullname: user.fullname,
+            email: user.email,
+        }, token })
     } catch (e) {
-        res.status(400).send({
+        res.status(500).send({
             error: e
         })
     }
@@ -23,7 +26,10 @@ router.post('/login', async (req: Request, res: Response) => {
 
         const token = await user.generateAuthToken()
 
-        res.status(200).send({ user, token })
+        res.status(200).send({ user: {
+            fullname: user.fullname,
+            email: user.email,
+        }, token })
     } catch (e) {
         res.status(400).send({
             error: e
@@ -36,7 +42,7 @@ router.post('/recover', async (req: Request, res: Response) => {
         const user = await User.findOne({ email: req.body.email })
 
         if (!user) 
-            return res.status(401).send()
+            return res.status(400).send()
 
         const token = await user.generatePasswordResetToken()
 
