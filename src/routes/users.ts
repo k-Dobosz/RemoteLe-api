@@ -62,4 +62,38 @@ router.post('/recover', async (req: Request, res: Response, next: NextFunction) 
     }
 })
 
+router.post('/reset', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await User.findOne({ 
+            resetPasswordToken: req.body.resetPasswordToken, 
+            resetPasswordTokenExpires: { $gte: new Date(Date.now()) } 
+        })
+
+        if (!user)
+            return next(new AppError('Your password reset link expired', 401))
+
+        user.password = req.body.password
+        user.save()
+
+        res.status(200).send({})
+    } catch (e) {
+        next(e)
+    }
+})
+
+router.get('/reset/check-token/:resetPasswordToken', async (req: Request, res: Response, next: NextFunction) => {
+    const resetPasswordToken = req.params.resetPasswordToken
+
+    try {
+        const user = await User.findOne({ resetPasswordToken, resetPasswordTokenExpires: { $gte: new Date(Date.now()) } })
+
+        if (!user)
+            return next(new AppError('Your password reset link expired', 401))
+
+        res.status(200).send({})
+    } catch (e) {
+        next(e)
+    }
+})
+
 export { router as default }
