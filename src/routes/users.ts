@@ -1,5 +1,4 @@
 import express, { NextFunction, Request, Response } from 'express'
-import { nextTick } from 'process'
 import { AppError } from '../middleware/error'
 import User from '../models/user'
 const router = express.Router()

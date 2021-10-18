@@ -5,7 +5,7 @@ import mongo from './database/db'
 import cors from 'cors'
 
 import usersRouter from './routes/users'
-import classesRouter from './routes/classes'
+import groupsRouter from './routes/groups'
 import errorMiddleware, { AppError } from './middleware/error'
 
 const app = express()
@@ -23,7 +23,7 @@ app.use(cors({
 
 
 app.use('/api/v1/users', usersRouter)
-app.use('/api/v1/classes', classesRouter)
+app.use('/api/v1/groups', groupsRouter)
 
 app.all('*', (req: Request, res: Response, next: NextFunction) => {
     next(new AppError(`Unable to find ${req.originalUrl}`, 404))
