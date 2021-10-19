@@ -3,6 +3,7 @@ import crypto from 'crypto'
 
 interface IGroup extends Document {
     name: string,
+    emoji: string,
     joinToken: string,
     users: Array<object>,
 }
@@ -17,6 +18,10 @@ const groupSchema = new mongoose.Schema<IGroup>({
         required: true,
         trim: true,
         lowercase: true
+    },
+    emoji: {
+        type: String,
+        required: false
     },
     joinToken: {
         type: String

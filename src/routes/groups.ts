@@ -20,6 +20,7 @@ router.get('/', auth, async (req: Request, res: Response, next: NextFunction) =>
 router.post('/', auth, async (req: Request, res: Response, next: NextFunction) => {
     const group = new Group({
         name: req.body.name,
+        icon: req.body.icon,
         users: [{ userId: req.user._id }]
     })
 
