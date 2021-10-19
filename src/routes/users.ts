@@ -1,7 +1,19 @@
 import express, { NextFunction, Request, Response } from 'express'
+import multer from 'multer'
+import sharp from 'sharp'
 import { AppError } from '../middleware/error'
 import User from '../models/user'
+import auth from '../middleware/auth'
 const router = express.Router()
+const upload = multer({
+    limits: { fileSize: 625000 },
+    fileFilter(req: Request, file: Express.Multer.File, cb) {
+      if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+        return cb(new AppError("Please upload png, jpeg or jpg", 400));
+      }
+      cb(null, true);
+    }
+  })
 
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const pass = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,32}$/
@@ -23,7 +35,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         res.status(201).send({ user: {
             fullname: user.fullname,
             email: user.email,
-            emailConfirmed: user.emailConfirmed
+            emailConfirmed: user.emailConfirmed,
+            role: user.role
         }, token })
     } catch (e) {
         next(e)
@@ -39,8 +52,26 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         res.status(200).send({ user: {
             fullname: user.fullname,
             email: user.email,
-            emailConfirmed: user.emailConfirmed
+            emailConfirmed: user.emailConfirmed,
+            avatar: user.avatar,
+            role: user.role
         }, token })
+    } catch (e) {
+        next(e)
+    }
+})
+
+router.post('/avatar', auth, upload.single('avatar'), async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        if (!req.file)
+            return next(new AppError('No avatar uploaded', 400))
+
+        const avatar = await sharp(req.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer()
+
+        req.user.avatar = avatar
+        await req.user.save()
+
+        res.status(200).send({ avatar })
     } catch (e) {
         next(e)
     }

@@ -9,7 +9,8 @@ interface IUser extends Document {
     fullname: string,
     email: string
     password: string,
-    avatar: BufferConstructor,
+    avatar: Buffer,
+    role: string,
     emailConfirmed: boolean,
     tokens: Array<object>,
     resetPasswordToken: string,
@@ -49,8 +50,14 @@ const userSchema = new mongoose.Schema<IUserDocument>({
         required: true
     },
     avatar: {
-        type: Buffer,
+        type: mongoose.Schema.Types.Buffer,
         required: false
+    },
+    role: {
+        type: String,
+        required: true,
+        default: 'unverified',
+        enum: ['unverified', 'student', 'teacher', 'admin']
     },
     emailConfirmed: {
         type: Boolean,
