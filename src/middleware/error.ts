@@ -25,7 +25,9 @@ const errorMiddleware = (err: AppError, req: Request, res: Response, next: NextF
 
     if (process.env.NODE_ENV === 'development') {
         res.status(err.statusCode).send({
-            error: err.message
+            statusCode: err.statusCode,
+            message: err.message,
+            error: err
         })
     } else if (process.env.NODE_ENV === 'production') {
         if (err.name === 'CastError') {

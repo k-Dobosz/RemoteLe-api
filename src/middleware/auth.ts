@@ -11,7 +11,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const token = req.header('Authorization')?.split(' ')[1]
 
-        if (token) {
+        if (token && token != 'null') {
             const decoded = jwt.verify(token, process.env.JWT_TOKEN_SECRET as jwt.Secret) as unknown as Payload
             const user = await User.findOne({ _id: decoded._id, 'tokens.token': token })
 
