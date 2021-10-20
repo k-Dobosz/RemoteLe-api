@@ -26,6 +26,12 @@ router.get('/:groupId', auth, async (req: Request, res: Response, next: NextFunc
         if (!group)
             return next(new AppError('No group found', 404))
 
+        const users: Array<any> = group.users
+
+        if (!users.some(item => item.userId.toString() == req.user._id.toString())) {
+            return next(new AppError('You are not in this group.', 403))
+        }
+
         res.status(200).send({ group })
     } catch (e) {
         next(e)
@@ -95,6 +101,12 @@ router.patch('/:groupId', auth, async (req: Request, res: Response, next: NextFu
     }
 
     try {
+        const isAllowedToUpdate = await Group.findById(groupId)
+
+        if (!isAllowedToUpdate) {
+            return next(new AppError('You are not allowed to update this group', 403))
+        }
+
         const group = await Group.findOneAndUpdate({ _id: groupId }, req.body, { new: true })
 
         res.status(200).send(group)
@@ -105,6 +117,12 @@ router.patch('/:groupId', auth, async (req: Request, res: Response, next: NextFu
 
 router.delete('/', auth, async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const isAllowedToDelete = await Group.find({ _id: req.body.groupId, creator: req.user._id })
+
+        if (!isAllowedToDelete) {
+            return next(new AppError('You are not allowed to delete this group', 403))
+        }
+
         const group = await Group.deleteOne({ _id: req.body.groupId })
 
         res.status(200).send({})

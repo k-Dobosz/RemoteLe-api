@@ -64,4 +64,4 @@ groupSchema.method('generateJoinToken', async function generateJoinToken() {
 
 const Group = mongoose.model<IGroupDocument>('Group', groupSchema)
 
-export { Group as default }
+export { Group as default, IGroupDocument }
