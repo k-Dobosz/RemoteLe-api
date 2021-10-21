@@ -31,8 +31,9 @@ const groupSchema = new mongoose.Schema<IGroup>({
     },
     description: {
         type: String,
-        required: false,
-        trim: true
+        required: true,
+        trim: true,
+        default: ''
     },
     emoji: {
         type: String,
