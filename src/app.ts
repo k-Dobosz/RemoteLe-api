@@ -6,6 +6,7 @@ import cors from 'cors'
 
 import usersRouter from './routes/users'
 import groupsRouter from './routes/groups'
+import topicsRouter from './routes/topics'
 import errorMiddleware, { AppError } from './middleware/error'
 
 const app = express()
@@ -24,6 +25,7 @@ app.use(cors({
 
 app.use('/api/v1/users', usersRouter)
 app.use('/api/v1/groups', groupsRouter)
+app.use('/api/v1/topics', topicsRouter)
 
 app.all('*', (req: Request, res: Response, next: NextFunction) => {
     next(new AppError(`Unable to find ${req.originalUrl}`, 404))
