@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import User from '../models/user'
+import { AppError } from './error'
 
 interface Payload {
     _id: string,
@@ -16,6 +17,9 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
             const user = await User.findOne({ _id: decoded._id, 'tokens.token': token })
 
             if (user) {
+                if (user.role == 'unverified')
+                    return next(new AppError('You have to verify your email to use this route.', 401))
+
                 req.token = token
                 req.user = user
                 next()
