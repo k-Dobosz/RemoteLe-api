@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express'
 import auth from '../middleware/auth'
 import { AppError } from '../middleware/error'
 import Group from '../models/group'
+import User from '../models/user'
 const router = express.Router()
 
 router.get('/', auth, async (req: Request, res: Response, next: NextFunction) => {
@@ -32,7 +33,31 @@ router.get('/:groupId', auth, async (req: Request, res: Response, next: NextFunc
             return next(new AppError('You are not in this group.', 403))
         }
 
-        res.status(200).send({ group })
+        let usersList: Array<any> = []
+
+        for (let user of users) {
+            const q = await User.findById(user.userId)
+            if (!q) continue
+
+            usersList.push({
+                _id: q._id,
+                fullname: q.fullname,
+                email: q.email,
+                role: q.role,
+                groupRole: user.role
+            })
+        }
+
+        res.status(200).send({ group: { 
+            name: group.name,
+            subject: group.subject,
+            description: group.description,
+            emoji: group.emoji,
+            joinToken: group.joinToken,
+            todo: group.todo,
+            users: usersList,
+            creator: group.creator
+        }})
     } catch (e) {
         next(e)
     }
@@ -42,6 +67,7 @@ router.post('/', auth, async (req: Request, res: Response, next: NextFunction) =
     const group = new Group({
         name: req.body.name,
         subject: req.body.subject,
+        description: req.body.description,
         emoji: req.body.emoji,
         users: [{ userId: req.user._id, role: 'creator' }],
         creator: req.user._id
@@ -77,14 +103,7 @@ router.get('/join/:joinToken', auth, async (req: Request, res: Response, next: N
         group.users = group.users.concat({ userId: req.user._id })
         group.save()
 
-        res.status(200).send({ 
-            _id: group._id, 
-            name: group.name,
-            subject: group.subject,
-            emoji: group.emoji,
-            users: group.users,
-            creator: group.creator
-        })
+        res.status(200).send()
     } catch (e) {
         next(e)
     }
@@ -93,7 +112,7 @@ router.get('/join/:joinToken', auth, async (req: Request, res: Response, next: N
 router.patch('/:groupId', auth, async (req: Request, res: Response, next: NextFunction) => {
     const groupId = req.params.groupId
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['name', 'emoji', 'joinToken']
+    const allowedUpdates = ['name', 'subject', 'description', 'emoji', 'joinToken']
     const isValid = updates.every(update => allowedUpdates.includes(update))
 
     if (!isValid) {

@@ -4,8 +4,10 @@ import crypto from 'crypto'
 interface IGroup extends Document {
     name: string,
     subject: string,
+    description: string,
     emoji: string,
     joinToken: string,
+    todo: Array<object>,
     users: Array<object>,
     creator: mongoose.Types.ObjectId
 }
@@ -27,6 +29,11 @@ const groupSchema = new mongoose.Schema<IGroup>({
         trim: true,
         lowercase: true
     },
+    description: {
+        type: String,
+        required: false,
+        trim: true
+    },
     emoji: {
         type: String,
         required: false
@@ -34,12 +41,18 @@ const groupSchema = new mongoose.Schema<IGroup>({
     joinToken: {
         type: String
     },
+    todo: [{
+        text: {
+            type: String,
+            required: true
+        }
+    }],
     users: [{
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true
         },
-        role: {
+        groupRole: {
             type: String,
             required: true,
             default: 'student',
