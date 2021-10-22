@@ -1,0 +1,17 @@
+{
+    "users": {
+        "password": {
+            "reset": {
+                "email:notfound": "User with this email not found.",
+                "link:expired": "Your password reset link expired."
+            }
+        }
+    },
+    "groups": {
+        
+    },
+    "errors": {
+        "unable:to:find": "Unable to find.",
+        "unexpected": "Unexpected error occured."
+    }
+}

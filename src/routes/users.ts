@@ -1,10 +1,12 @@
 import express, { NextFunction, Request, Response } from 'express'
 import multer from 'multer'
 import sharp from 'sharp'
+import sgMail from '@sendgrid/mail'
 import { AppError } from '../middleware/error'
 import User from '../models/user'
 import auth from '../middleware/auth'
 const router = express.Router()
+sgMail.setApiKey(process.env.SENDGRID_API_KEY ?? '')
 const upload = multer({
     limits: { fileSize: 625000 },
     fileFilter(req: Request, file: Express.Multer.File, cb) {
@@ -30,14 +32,24 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
     try {
         await user.save()
-        const token = await user.generateAuthToken()
+        const authtoken = await user.generateAuthToken()
+        const emailConfirmToken = await user.generateEmailConfirmToken()
+
+        const url = `${ process.env.FRONTEND_URL }confirm-email/${ emailConfirmToken }`
+
+        sgMail.send({
+            to: user.email,
+            from: process.env.SENGRID_EMAIL ?? '',
+            subject: 'Verify your email',
+            text: `Hi! Click this link to verify your email address! ${ url }`
+        })
 
         res.status(201).send({ user: {
             fullname: user.fullname,
             email: user.email,
             emailConfirmed: user.emailConfirmed,
             role: user.role
-        }, token })
+        }, token: authtoken })
     } catch (e) {
         next(e)
     }
@@ -82,7 +94,7 @@ router.post('/recover', async (req: Request, res: Response, next: NextFunction) 
         const user = await User.findOne({ email: req.body.email })
 
         if (!user) 
-            return next(new AppError('User with this email not found', 404))
+            return next(new AppError(req.polyglot.t('user.password.reset.email:notfound'), 404))
 
         const token = await user.generatePasswordResetToken()
 
@@ -101,7 +113,7 @@ router.post('/reset', async (req: Request, res: Response, next: NextFunction) =>
         })
 
         if (!user)
-            return next(new AppError('Your password reset link expired', 401))
+            return next(new AppError(req.polyglot.t('user.password.reset.email:link:expired'), 401))
 
         user.password = req.body.password
         user.save()
@@ -120,6 +132,25 @@ router.get('/reset/check-token/:resetPasswordToken', async (req: Request, res: R
 
         if (!user)
             return next(new AppError('Your password reset link expired', 401))
+
+        res.status(200).send({})
+    } catch (e) {
+        next(e)
+    }
+})
+
+router.post('/confirm-email/:emailConfirmToken', async (req: Request, res: Response, next: NextFunction) => {
+    const emailConfirmToken = req.params.emailConfirmToken
+
+    try {
+        const user = await User.findOne({ role: 'unverified', emailConfirmToken })
+
+        if (!user)
+            return next(new AppError('Unable to confirm email', 400))
+
+        user.role = 'student'
+        user.emailConfirmToken = undefined
+        await user.save()
 
         res.status(200).send({})
     } catch (e) {

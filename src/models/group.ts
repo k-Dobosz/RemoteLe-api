@@ -7,7 +7,7 @@ interface IGroup extends Document {
     description: string,
     emoji: string,
     joinToken: string,
-    todo: Array<object>,
+    todos: Array<object>,
     users: Array<object>,
     creator: mongoose.Types.ObjectId
 }
@@ -31,7 +31,7 @@ const groupSchema = new mongoose.Schema<IGroup>({
     },
     description: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
         default: ''
     },
@@ -42,7 +42,7 @@ const groupSchema = new mongoose.Schema<IGroup>({
     joinToken: {
         type: String
     },
-    todo: [{
+    todos: [{
         text: {
             type: String,
             required: true

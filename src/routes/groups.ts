@@ -25,7 +25,7 @@ router.get('/:groupId', auth, async (req: Request, res: Response, next: NextFunc
         const group = await Group.findOne({ _id: groupId })
 
         if (!group)
-            return next(new AppError('No group found', 404))
+            return next(new AppError('Group not found', 404))
 
         const users: Array<any> = group.users
 
@@ -38,26 +38,86 @@ router.get('/:groupId', auth, async (req: Request, res: Response, next: NextFunc
         for (let user of users) {
             const q = await User.findById(user.userId)
             if (!q) continue
-
+            
             usersList.push({
                 _id: q._id,
                 fullname: q.fullname,
                 email: q.email,
                 role: q.role,
-                groupRole: user.role
+                groupRole: user.groupRole
             })
         }
 
         res.status(200).send({ group: { 
+            _id: group._id,
             name: group.name,
             subject: group.subject,
             description: group.description,
             emoji: group.emoji,
             joinToken: group.joinToken,
-            todo: group.todo,
+            todos: group.todos,
             users: usersList,
             creator: group.creator
         }})
+    } catch (e) {
+        next(e)
+    }
+})
+
+router.get('/:groupId/todos/', auth, async (req: Request, res: Response, next: NextFunction) => {
+    const groupId = req.params.groupId
+
+    try {
+        const groups = await Group.findById(groupId)
+
+        if (!groups)
+            return next(new AppError('Group not found', 404))
+
+        if(groups.todos.length == 0)
+            return next(new AppError('No todos found', 404))
+
+
+        res.status(200).send({ todos: groups.todos })
+    } catch (e) {
+        next(e)
+    }
+})
+
+router.post('/:groupId/todos/', auth, async (req: Request, res: Response, next: NextFunction) => {
+    const groupId = req.params.groupId
+
+    try {
+        const group = await Group.findById(groupId)
+
+        if (!group)
+            return next(new AppError('Group not found', 404))
+
+        group.todos = [...group.todos, { text: req.body.text }]
+        await group.save()
+
+        return res.status(200).send({ todo: group.todos[group.todos.length - 1] })
+    } catch (e) {
+        next(e)
+    }
+})
+
+router.delete('/:groupId/todos/:todoId', auth, async (req: Request, res: Response, next: NextFunction) => {
+    const groupId = req.params.groupId
+    const todoId = req.params.todoId
+    
+    try {
+        const group = await Group.findOne({ _id: groupId, creator: req.user._id })
+
+        if (!group) {
+            return next(new AppError('You are not allowed to delete this task', 403))
+        }
+
+        group.todos = group.todos.filter((todo: any) => {
+            return todo._id.toString() != todoId
+        })
+        group.save()
+
+        res.status(200).send()
     } catch (e) {
         next(e)
     }
@@ -84,7 +144,7 @@ router.post('/', auth, async (req: Request, res: Response, next: NextFunction) =
     }
 })
 
-router.get('/join/:joinToken', auth, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/join/:joinToken', auth, async (req: Request, res: Response, next: NextFunction) => {
     const joinToken = req.params.joinToken
 
     try {

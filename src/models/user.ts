@@ -12,6 +12,7 @@ interface IUser extends Document {
     avatar: Buffer,
     role: string,
     emailConfirmed: boolean,
+    emailConfirmToken?: string,
     tokens: Array<object>,
     resetPasswordToken: string,
     resetPasswordTokenExpires: Date
@@ -19,7 +20,8 @@ interface IUser extends Document {
 
 interface IUserDocument extends IUser, Document {
     generateAuthToken(): Promise<String>,
-    generatePasswordResetToken(): Promise<void>
+    generatePasswordResetToken(): Promise<String>,
+    generateEmailConfirmToken(): Promise<String>
 }
 
 interface UserModel extends Model<IUserDocument> {
@@ -63,6 +65,10 @@ const userSchema = new mongoose.Schema<IUserDocument>({
         type: Boolean,
         required: true,
         default: false
+    },
+    emailConfirmToken: {
+        type: String,
+        required: false
     },
     tokens: [{
         token: {
@@ -117,6 +123,15 @@ userSchema.method('generatePasswordResetToken', async function generatePasswordR
     await user.save()
 
     return user.resetPasswordToken
+})
+
+userSchema.method('generateEmailConfirmToken', async function generateEmailConfirmToken() {
+    const user = this
+    user.emailConfirmToken = await crypto.randomBytes(24).toString('hex')
+
+    await user.save()
+
+    return user.emailConfirmToken
 })
 
 userSchema.pre<IUserDocument>('save', async function(next) {

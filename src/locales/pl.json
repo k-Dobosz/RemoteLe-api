@@ -1,0 +1,17 @@
+{
+    "users": {
+        "password": {
+            "reset": {
+                "email:notfound": "Nie odnaleziono tego użytkownika.",
+                "link:expired": "Link do zresetowania hasła wygasł."
+            }
+        }
+    },
+    "groups": {
+
+    },
+    "errors": {
+        "unable:to:find": "Nie odnaleziono.",
+        "unexpected": "Wystąpił nieoczekiwany błąd."
+    }
+}

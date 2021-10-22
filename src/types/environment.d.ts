@@ -4,7 +4,9 @@ declare global {
             PORT?: string,
             MONGODB_URL: string,
             JWT_TOKEN_SECRET: string,
-            SENDGRID_API: string
+            SENGRID_EMAIL: string,
+            SENDGRID_API_KEY: string,
+            FRONTEND_URL: string
         }
     }
 }

@@ -21,7 +21,7 @@ class AppError extends Error {
 
 const errorMiddleware = (err: AppError, req: Request, res: Response, next: NextFunction) => {
     err.statusCode = err.statusCode || 500
-    err.message = err.message || 'Unexpected error occured.'
+    err.message = err.message || req.polyglot.t('errors.unexpected') || 'Unexpected error occured.'
 
     if (process.env.NODE_ENV === 'development') {
         res.status(err.statusCode).send({

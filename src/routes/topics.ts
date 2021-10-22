@@ -56,7 +56,7 @@ router.post('/', auth, async (req: Request, res: Response, next: NextFunction) =
 router.patch('/:topicId', auth, async (req: Request, res: Response, next: NextFunction) => {
     const topicId = req.params.topicId
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['name', 'description']
+    const allowedUpdates = ['name', 'description', 'components']
     const isValid = updates.every(update => allowedUpdates.includes(update))
 
     if (!isValid) {
