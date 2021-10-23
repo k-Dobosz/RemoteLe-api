@@ -41,6 +41,7 @@ router.post('/', auth, async (req: Request, res: Response, next: NextFunction) =
     const topic = new Topic({
         name: req.body.name,
         description: req.body.description,
+        components: req.body.components,
         creator: req.user._id
     })
 
@@ -72,7 +73,7 @@ router.patch('/:topicId', auth, async (req: Request, res: Response, next: NextFu
 
         const group = await Topic.findOneAndUpdate({ _id: topicId }, req.body, { new: true })
 
-        res.status(200).send(group)
+        res.status(200).send({ group })
     } catch (e) {
         next(e)
     }
