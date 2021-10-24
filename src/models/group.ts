@@ -46,6 +46,10 @@ const groupSchema = new mongoose.Schema<IGroup>({
         text: {
             type: String,
             required: true
+        },
+        createdAt: {
+            type: Date,
+            required: true
         }
     }],
     users: [{

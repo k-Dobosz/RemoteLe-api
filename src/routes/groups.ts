@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express'
 import auth from '../middleware/auth'
 import { AppError } from '../middleware/error'
-import Group from '../models/group'
+import Group, { IGroupDocument } from '../models/group'
 import User from '../models/user'
 const router = express.Router()
 
@@ -10,9 +10,44 @@ router.get('/', auth, async (req: Request, res: Response, next: NextFunction) =>
         const groups = await Group.find({ 'users.userId': req.user._id })
 
         if (groups.length == 0)
-            return next(new AppError(req.polyglot.t('grups.notfound.many'), 404))
+            return next(new AppError(req.polyglot.t('groups.notfound.many'), 404))
 
         res.status(200).send({ groups })
+    } catch (e) {
+        next(e)
+    }
+})
+
+router.get('/todos/', auth, async (req: Request, res: Response, next: NextFunction) => {
+    const groupId = req.params.groupId
+
+    function compareDates (a: string, b: string) {
+        let c = new Date(a)
+        let d = new Date(b)
+        return c < d ? 1 : -1
+    }
+
+    try {
+        const groups = await Group.find({ 'users.userId': req.user._id })
+
+        if (groups.length == 0)
+            return next(new AppError(req.polyglot.t('groups.notfound.many'), 404))
+
+        const todos: Array<Object> = []
+        
+        for (const group of groups) {
+            for (const todo of group.todos) {
+                console.log(todo)
+                todos.push(todo)
+            }
+        }
+
+        if (todos.length == 0)
+            return next(new AppError(req.polyglot.t('groups.notfound.many:todo'), 404))
+
+        const sorted = todos.sort((a: any, b: any) => compareDates(a.createdAt, b.createdAt)).splice(0, 5)
+        
+        res.status(200).send({ todos: sorted })
     } catch (e) {
         next(e)
     }
@@ -30,7 +65,7 @@ router.get('/:groupId', auth, async (req: Request, res: Response, next: NextFunc
         const users: Array<any> = group.users
 
         if (!users.some(item => item.userId.toString() == req.user._id.toString())) {
-            return next(new AppError(req.polyglot.t('grups.notallowed.view'), 403))
+            return next(new AppError(req.polyglot.t('groups.notallowed.view'), 403))
         }
 
         let usersList: Array<any> = []
@@ -71,10 +106,10 @@ router.get('/:groupId/todos/', auth, async (req: Request, res: Response, next: N
         const groups = await Group.findById(groupId)
 
         if (!groups)
-            return next(new AppError(req.polyglot.t('grups.notfound.one'), 404))
+            return next(new AppError(req.polyglot.t('groups.notfound.one'), 404))
 
         if(groups.todos.length == 0)
-            return next(new AppError(req.polyglot.t('grups.notfound.many:todo'), 404))
+            return next(new AppError(req.polyglot.t('groups.notfound.many:todo'), 404))
 
 
         res.status(200).send({ todos: groups.todos })
@@ -90,9 +125,9 @@ router.post('/:groupId/todos/', auth, async (req: Request, res: Response, next: 
         const group = await Group.findById(groupId)
 
         if (!group)
-            return next(new AppError(req.polyglot.t('grups.notfound.one'), 404))
+            return next(new AppError(req.polyglot.t('groups.notfound.one'), 404))
 
-        group.todos = [...group.todos, { text: req.body.text }]
+        group.todos = [...group.todos, { text: req.body.text, createdAt: Date.now() }]
         await group.save()
 
         return res.status(200).send({ todo: group.todos[group.todos.length - 1] })
@@ -109,7 +144,7 @@ router.delete('/:groupId/todos/:todoId', auth, async (req: Request, res: Respons
         const group = await Group.findOne({ _id: groupId, creator: req.user._id })
 
         if (!group) {
-            return next(new AppError(req.polyglot.t('grups.notallowed.delete:todo'), 403))
+            return next(new AppError(req.polyglot.t('groups.notallowed.delete:todo'), 403))
         }
 
         group.todos = group.todos.filter((todo: any) => {
@@ -157,7 +192,7 @@ router.post('/join/:joinToken', auth, async (req: Request, res: Response, next: 
         const users: Array<any> = group.users
 
         if (users.some(item => item.userId.toString() == req.user._id.toString())) {
-            return next(new AppError(req.polyglot.t('grups.already:joined'), 404))
+            return next(new AppError(req.polyglot.t('groups.already:joined'), 404))
         }
 
         group.users = group.users.concat({ userId: req.user._id })
@@ -183,7 +218,7 @@ router.patch('/:groupId', auth, async (req: Request, res: Response, next: NextFu
         const isAllowedToUpdate = await Group.findById(groupId)
 
         if (!isAllowedToUpdate) {
-            return next(new AppError(req.polyglot.t('grups.notallowed.update'), 403))
+            return next(new AppError(req.polyglot.t('groups.notallowed.update'), 403))
         }
 
         const group = await Group.findOneAndUpdate({ _id: groupId }, req.body, { new: true })
@@ -199,7 +234,7 @@ router.delete('/', auth, async (req: Request, res: Response, next: NextFunction)
         const isAllowedToDelete = await Group.find({ _id: req.body.groupId, creator: req.user._id })
 
         if (!isAllowedToDelete) {
-            return next(new AppError(req.polyglot.t('grups.notallowed.delete'), 403))
+            return next(new AppError(req.polyglot.t('groups.notallowed.delete'), 403))
         }
 
         const group = await Group.deleteOne({ _id: req.body.groupId })
