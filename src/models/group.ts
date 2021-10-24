@@ -9,6 +9,7 @@ interface IGroup extends Document {
     joinToken: string,
     todos: Array<object>,
     users: Array<object>,
+    lessons: Array<object>,
     creator: mongoose.Types.ObjectId
 }
 
@@ -62,6 +63,20 @@ const groupSchema = new mongoose.Schema<IGroup>({
             required: true,
             default: 'student',
             enum: ['student', 'creator']
+        }
+    }],
+    lessons: [{
+        weekDays: {
+            type: Array,
+            required: true
+        },
+        timeStart: {
+            type: String,
+            required: true
+        },
+        timeEnd: {
+            type: String,
+            required: true
         }
     }],
     creator: {

@@ -53,6 +53,41 @@ router.get('/todos/', auth, async (req: Request, res: Response, next: NextFuncti
     }
 })
 
+router.get('/lessons', auth, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const groups = await Group.find({ 'users.userId': req.user._id})
+
+        if (groups.length == 0)
+            return next(new AppError(req.polyglot.t('groups.notfound.many'), 404))
+
+        const lessons: Array<Object> = []
+
+        
+        for (const group of groups) {
+            for (const lesson of group.lessons) {
+                let l: any = lesson
+                let obj: any = { 
+                    groupName: group.name, 
+                    subject: group.subject,
+                    timeStart: l.timeStart,
+                    timeEnd: l.timeEnd,
+                    weekDays: l.weekDays
+                }
+                const d = new Date()
+                let day = d.getDay()
+
+                if (obj.weekDays.indexOf(day) !== -1) {
+                    lessons.push(obj)
+                }                
+            }
+        }
+
+        res.status(200).send({ lessons })
+    } catch (e) {
+        next(e)
+    }
+})
+
 router.get('/:groupId', auth, async (req: Request, res: Response, next: NextFunction) => {
     const groupId = req.params.groupId
 
