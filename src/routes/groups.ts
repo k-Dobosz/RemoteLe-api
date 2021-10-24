@@ -62,7 +62,6 @@ router.get('/lessons', auth, async (req: Request, res: Response, next: NextFunct
 
         const lessons: Array<Object> = []
 
-        
         for (const group of groups) {
             for (const lesson of group.lessons) {
                 let l: any = lesson
@@ -127,6 +126,7 @@ router.get('/:groupId', auth, async (req: Request, res: Response, next: NextFunc
             joinToken: group.joinToken,
             todos: group.todos,
             users: usersList,
+            lessons: group.lessons,
             creator: group.creator
         }})
     } catch (e) {
@@ -200,6 +200,7 @@ router.post('/', auth, async (req: Request, res: Response, next: NextFunction) =
         description: req.body.description,
         emoji: req.body.emoji,
         users: [{ userId: req.user._id, groupRole: 'creator' }],
+        lessons: req.body.lessons,
         creator: req.user._id
     })
 

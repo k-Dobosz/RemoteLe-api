@@ -100,6 +100,15 @@ router.post('/recover', async (req: Request, res: Response, next: NextFunction) 
 
         const token = await user.generatePasswordResetToken()
 
+        const url = `${ process.env.FRONTEND_URL }reset-password/${ token }`
+
+        sgMail.send({
+            to: user.email,
+            from: process.env.SENGRID_EMAIL ?? '',
+            subject: 'Reset your password',
+            text: `Hi! Click this link to reset your password! ${ url }`
+        })
+
         res.status(200).send({ resetPasswordToken: token })
 
     } catch (e) {
@@ -151,6 +160,7 @@ router.post('/confirm-email/:emailConfirmToken', async (req: Request, res: Respo
             return next(new AppError(req.polyglot.t('users.email.unable:to:confirm'), 400))
 
         user.role = 'student'
+        user.emailConfirmed = true
         user.emailConfirmToken = undefined
         await user.save()
 
