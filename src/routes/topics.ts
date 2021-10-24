@@ -9,11 +9,11 @@ router.get('/', auth, async (req: Request, res: Response, next: NextFunction) =>
         const topics = await Topic.find({ 'creator': req.user._id })
 
         if (req.user.role == 'student') {
-            return next(new AppError('You are not allowed to get topics', 401))
+            return next(new AppError(req.polyglot.t('topics.notallowed.view'), 403))
         }
 
         if (topics.length == 0)
-            return next(new AppError('No topics found.', 404))
+            return next(new AppError(req.polyglot.t('topics.notfound'), 404))
 
         res.status(200).send({ topics })
     } catch (e) {
@@ -28,7 +28,7 @@ router.get('/:topicId', auth, async (req: Request, res: Response, next: NextFunc
         const topic = await Topic.findOne({ _id: topicId })
 
         if (!topic)
-            return next(new AppError('No topic found.', 404))
+            return next(new AppError(req.polyglot.t('topics.notfound'), 404))
 
 
         res.status(200).send({ topic })
@@ -61,14 +61,14 @@ router.patch('/:topicId', auth, async (req: Request, res: Response, next: NextFu
     const isValid = updates.every(update => allowedUpdates.includes(update))
 
     if (!isValid) {
-        return next(new AppError('Invalid fields', 400))
+        return next(new AppError(req.polyglot.t('topics.invalid.fields'), 400))
     }
 
     try {
         const isAllowedToUpdate = await Topic.findById(topicId)
 
         if (!isAllowedToUpdate) {
-            return next(new AppError('You are not allowed to update this topic', 403))
+            return next(new AppError(req.polyglot.t('topics.notallowed.update'), 403))
         }
 
         const group = await Topic.findOneAndUpdate({ _id: topicId }, req.body, { new: true })
@@ -79,15 +79,17 @@ router.patch('/:topicId', auth, async (req: Request, res: Response, next: NextFu
     }
 })
 
-router.delete('/', auth, async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:topicId', auth, async (req: Request, res: Response, next: NextFunction) => {
+    const topicId = req.params.topicId
+    
     try {
-        const isAllowedToDelete = await Topic.find({ _id: req.body.topicId, creator: req.user._id })
+        const isAllowedToDelete = await Topic.find({ _id: topicId, creator: req.user._id })
 
         if (!isAllowedToDelete) {
-            return next(new AppError('You are not allowed to delete this topic', 403))
+            return next(new AppError(req.polyglot.t('topics.notallowed.delete'), 403))
         }
 
-        await Topic.deleteOne({ _id: req.body.topicId })
+        await Topic.deleteOne({ _id: topicId })
 
         res.status(200).send({})
     } catch (e) {

@@ -41,8 +41,19 @@
         "notallowed": {
             "view": "Nie należysz do tej klasy.",
             "update": "Nie możesz zaktualizować tej klasy.",
-            "delete": "Nie możesz usunąć klasy.",
+            "delete": "Nie możesz usunąć tej klasy.",
             "delete:todo": "Nie możesz tego usunąć."
+        }
+    },
+    "topics": {
+        "notfound": "Nie znaleziono żadnego tematu.",
+        "invalid": {
+            "fields": "Błędne pola."
+        },
+        "notallowed": {
+            "view": "Nie możesz zobaczyć tematów.",
+            "update": "Nie możesz zaktualizować tego tematu.",
+            "delete": "Nie możesz usunąć tego tematu."
         }
     },
     "errors": {

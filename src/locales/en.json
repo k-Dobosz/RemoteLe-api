@@ -45,6 +45,17 @@
             "delete:todo": "You are not allowed to delete this todo."
         }
     },
+    "topics": {
+        "notfound": "No topic found.",
+        "invalid": {
+            "fields": "Invalid fields."
+        },
+        "notallowed": {
+            "view": "You are not allowed to see this topic.",
+            "update": "You are not allowed to update this topic.",
+            "delete": "You are not allowed to delete this topic."
+        }
+    },
     "errors": {
         "unable:to:find": "Unable to find.",
         "unexpected": "Unexpected error occured."
