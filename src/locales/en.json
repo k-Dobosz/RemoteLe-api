@@ -1,5 +1,6 @@
 {
     "users": {
+        "no:avatar:uploaded": "'Nie wgrano avatara.'",
         "register": {
             "password:invalid": "Password is invalid."
         },
@@ -11,11 +12,19 @@
             "unverified": "To login you have to confirm your email address.",
             "notoken": "Unable to authenticate."
         },
+        "email": {
+            "unable:toconfirm": "Unable to confirm email"
+        },
         "password": {
             "reset": {
                 "email:notfound": "User with this email not found.",
                 "link:expired": "Your password reset link expired."
             }
+        },
+        "invalid": {
+            "email": "Invalid email provided.",
+            "password:old": "Old password is invalid.",
+            "password:new": "New password is invalid."
         }
     },
     "groups": {

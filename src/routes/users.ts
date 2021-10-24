@@ -78,7 +78,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 router.post('/avatar', auth, upload.single('avatar'), async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.file)
-            return next(new AppError('No avatar uploaded', 400))
+            return next(new AppError(req.polyglot.t('users.no:avatar:uploaded'), 400))
 
         const avatar = await sharp(req.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer()
 
@@ -133,7 +133,7 @@ router.get('/reset/check-token/:resetPasswordToken', async (req: Request, res: R
         const user = await User.findOne({ resetPasswordToken, resetPasswordTokenExpires: { $gte: new Date(Date.now()) } })
 
         if (!user)
-            return next(new AppError('Your password reset link expired', 401))
+            return next(new AppError(req.polyglot.t('user.password.reset.email:link:expired'), 401))
 
         res.status(200).send({})
     } catch (e) {
@@ -148,7 +148,7 @@ router.post('/confirm-email/:emailConfirmToken', async (req: Request, res: Respo
         const user = await User.findOne({ role: 'unverified', emailConfirmToken })
 
         if (!user)
-            return next(new AppError('Unable to confirm email', 400))
+            return next(new AppError(req.polyglot.t('users.email.unable:to:confirm'), 400))
 
         user.role = 'student'
         user.emailConfirmToken = undefined

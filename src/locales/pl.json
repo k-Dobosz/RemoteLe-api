@@ -1,7 +1,8 @@
 {
     "users": {
+        "no:avatar:uploaded": "'Nie wgrano avatara.'",
         "register": {
-            "password:invalid": "Password is invalid."
+            "password:invalid": "Hasło jest błędne."
         },
         "login": {
             "unable": "Nie udało się zalogować."
@@ -11,11 +12,19 @@
             "unverified": "Aby się zalogować musisz potwiedzić swój adres email.",
             "notoken": "Nie udało się uwierzytelnić."
         },
+        "email": {
+            "unable:to:confirm": "Nie udało się potwiedzić adresu email."
+        },
         "password": {
             "reset": {
                 "email:notfound": "Nie odnaleziono tego użytkownika.",
                 "link:expired": "Link do zresetowania hasła wygasł."
             }
+        },
+        "invalid": {
+            "email": "Podano błędny adres email.",
+            "password:old": "Stare hasło jest nieprawidłowe.",
+            "password:new": "Nowe hasło jest nieprawidłowe."
         }
     },
     "groups": {
@@ -27,7 +36,7 @@
         "notfound": {
             "one": "Nie odnaleziono tej klasy.",
             "many": "Nie odnaleziono żadnej klasy.",
-            "many:todo": "Nie odnaleziono"
+            "many:todo": "Nie odnaleziono."
         },
         "notallowed": {
             "view": "Nie należysz do tej klasy.",
