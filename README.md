@@ -2,6 +2,8 @@
 
 Rest api for RemoteLe app
 
+[RemoteLe app](https://github.com/GrzegorzJeremenko/remotele)
+
 ### Built with
 
 - Typescript
@@ -29,7 +31,9 @@ npm install
 ```
 MONGODB_URL=YOUR_URL_HERE
 JWT_TOKEN_SECRET=YOUR_SECRET_HERE
-SENDGRID_API=YOUR_API_KEY_HERE
+SENGRID_EMAIL=YOUR_EMAIL_HERE
+SENDGRID_API_KEY=YOUR_API_KEY_HERE
+FRONTEND_URL=YOUR_FRONTEND_URL_HERE
 ```
 
 3. Start the dev server
