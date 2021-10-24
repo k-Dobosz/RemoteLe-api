@@ -234,7 +234,7 @@ router.post('/join/:joinToken', auth, async (req: Request, res: Response, next: 
         group.users = group.users.concat({ userId: req.user._id })
         group.save()
 
-        res.status(200).send()
+        res.status(200).send({ group })
     } catch (e) {
         next(e)
     }
