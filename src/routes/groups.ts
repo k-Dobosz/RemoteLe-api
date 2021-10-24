@@ -129,7 +129,7 @@ router.post('/', auth, async (req: Request, res: Response, next: NextFunction) =
         subject: req.body.subject,
         description: req.body.description,
         emoji: req.body.emoji,
-        users: [{ userId: req.user._id, role: 'creator' }],
+        users: [{ userId: req.user._id, groupRole: 'creator' }],
         creator: req.user._id
     })
 

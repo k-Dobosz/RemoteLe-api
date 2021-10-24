@@ -2,9 +2,11 @@ import express, { NextFunction, Request, Response } from 'express'
 import multer from 'multer'
 import sharp from 'sharp'
 import sgMail from '@sendgrid/mail'
+import bcrypt from 'bcrypt'
 import { AppError } from '../middleware/error'
 import User from '../models/user'
 import auth from '../middleware/auth'
+import user from '../models/user'
 const router = express.Router()
 sgMail.setApiKey(process.env.SENDGRID_API_KEY ?? '')
 const upload = multer({
@@ -153,6 +155,60 @@ router.post('/confirm-email/:emailConfirmToken', async (req: Request, res: Respo
         await user.save()
 
         res.status(200).send({})
+    } catch (e) {
+        next(e)
+    }
+})
+
+
+router.post('/change-email', auth, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const email = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
+        if (!email.test(req.body.email)) 
+            return next(new AppError(req.polyglot.t('users.invalid.email'), 400))
+
+        req.user.email = req.body.email
+        req.user.save()
+
+        res.status(200).send({ 
+            user: {
+                fullname: req.user.fullname,
+                email: req.user.email,
+                emailConfirmed: req.user.emailConfirmed,
+                avatar: req.user.avatar,
+                role: req.user.role
+            }
+        })
+    } catch (e) {
+        next(e)
+    }
+})
+
+router.post('/change-password', auth, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const password = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,32}$/
+
+        if (!password.test(req.body.newPassword))
+            return next(new AppError(req.polyglot.t('users.invalid.password:new'), 400))
+
+        const isMatch = await bcrypt.compare(req.body.password, req.user.password)
+
+        if (!isMatch)
+            return next(new AppError(req.polyglot.t('users.invalid.password:old'), 400))
+
+        req.user.password = req.body.newPassword
+        req.user.save()
+
+        res.status(200).send({ 
+            user: {
+                fullname: req.user.fullname,
+                email: req.user.email,
+                emailConfirmed: req.user.emailConfirmed,
+                avatar: req.user.avatar,
+                role: req.user.role
+            }
+        })
     } catch (e) {
         next(e)
     }
