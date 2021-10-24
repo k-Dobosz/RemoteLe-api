@@ -1,5 +1,16 @@
 {
     "users": {
+        "register": {
+            "password:invalid": "Password is invalid."
+        },
+        "login": {
+            "unable": "Nie udało się zalogować."
+        },
+        "authorization": {
+            "unauthorized": "Nie udało się uwierzytelnić.",
+            "unverified": "Aby się zalogować musisz potwiedzić swój adres email.",
+            "notoken": "Nie udało się uwierzytelnić."
+        },
         "password": {
             "reset": {
                 "email:notfound": "Nie odnaleziono tego użytkownika.",
@@ -8,7 +19,22 @@
         }
     },
     "groups": {
-
+        "already:joined": "Już należysz do tej klasy.",
+        "invalid": {
+            "fields": "Błędne pola.",
+            "token": "Twój kod jest nieprawidłowy"
+        },
+        "notfound": {
+            "one": "Nie odnaleziono tej klasy.",
+            "many": "Nie odnaleziono żadnej klasy.",
+            "many:todo": "Nie odnaleziono"
+        },
+        "notallowed": {
+            "view": "Nie należysz do tej klasy.",
+            "update": "Nie możesz zaktualizować tej klasy.",
+            "delete": "Nie możesz usunąć klasy.",
+            "delete:todo": "Nie możesz tego usunąć."
+        }
     },
     "errors": {
         "unable:to:find": "Nie odnaleziono.",

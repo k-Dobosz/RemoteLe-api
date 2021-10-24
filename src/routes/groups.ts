@@ -10,7 +10,7 @@ router.get('/', auth, async (req: Request, res: Response, next: NextFunction) =>
         const groups = await Group.find({ 'users.userId': req.user._id })
 
         if (groups.length == 0)
-            return next(new AppError('No groups found', 404))
+            return next(new AppError(req.polyglot.t('grups.notfound.many'), 404))
 
         res.status(200).send({ groups })
     } catch (e) {
@@ -25,12 +25,12 @@ router.get('/:groupId', auth, async (req: Request, res: Response, next: NextFunc
         const group = await Group.findOne({ _id: groupId })
 
         if (!group)
-            return next(new AppError('Group not found', 404))
+            return next(new AppError(req.polyglot.t('grups.notfound.one'), 404))
 
         const users: Array<any> = group.users
 
         if (!users.some(item => item.userId.toString() == req.user._id.toString())) {
-            return next(new AppError('You are not in this group.', 403))
+            return next(new AppError(req.polyglot.t('grups.notallowed.view'), 403))
         }
 
         let usersList: Array<any> = []
@@ -71,10 +71,10 @@ router.get('/:groupId/todos/', auth, async (req: Request, res: Response, next: N
         const groups = await Group.findById(groupId)
 
         if (!groups)
-            return next(new AppError('Group not found', 404))
+            return next(new AppError(req.polyglot.t('grups.notfound.one'), 404))
 
         if(groups.todos.length == 0)
-            return next(new AppError('No todos found', 404))
+            return next(new AppError(req.polyglot.t('grups.notfound.many:todo'), 404))
 
 
         res.status(200).send({ todos: groups.todos })
@@ -90,7 +90,7 @@ router.post('/:groupId/todos/', auth, async (req: Request, res: Response, next: 
         const group = await Group.findById(groupId)
 
         if (!group)
-            return next(new AppError('Group not found', 404))
+            return next(new AppError(req.polyglot.t('grups.notfound.one'), 404))
 
         group.todos = [...group.todos, { text: req.body.text }]
         await group.save()
@@ -109,7 +109,7 @@ router.delete('/:groupId/todos/:todoId', auth, async (req: Request, res: Respons
         const group = await Group.findOne({ _id: groupId, creator: req.user._id })
 
         if (!group) {
-            return next(new AppError('You are not allowed to delete this task', 403))
+            return next(new AppError(req.polyglot.t('grups.notallowed.delete:todo'), 403))
         }
 
         group.todos = group.todos.filter((todo: any) => {
@@ -151,13 +151,13 @@ router.post('/join/:joinToken', auth, async (req: Request, res: Response, next: 
         const group = await Group.findOne({ joinToken })
 
         if (!group) {
-            return next(new AppError('Your invitation token is invalid.', 404))
+            return next(new AppError(req.polyglot.t('groups.invalid.token'), 404))
         }
 
         const users: Array<any> = group.users
 
         if (users.some(item => item.userId.toString() == req.user._id.toString())) {
-            return next(new AppError('You already are in this group.', 404))
+            return next(new AppError(req.polyglot.t('grups.already:joined'), 404))
         }
 
         group.users = group.users.concat({ userId: req.user._id })
@@ -176,14 +176,14 @@ router.patch('/:groupId', auth, async (req: Request, res: Response, next: NextFu
     const isValid = updates.every(update => allowedUpdates.includes(update))
 
     if (!isValid) {
-        return next(new AppError('Invalid fields', 400))
+        return next(new AppError(req.polyglot.t('groups.invalid.fields'), 400))
     }
 
     try {
         const isAllowedToUpdate = await Group.findById(groupId)
 
         if (!isAllowedToUpdate) {
-            return next(new AppError('You are not allowed to update this group', 403))
+            return next(new AppError(req.polyglot.t('grups.notallowed.update'), 403))
         }
 
         const group = await Group.findOneAndUpdate({ _id: groupId }, req.body, { new: true })
@@ -199,7 +199,7 @@ router.delete('/', auth, async (req: Request, res: Response, next: NextFunction)
         const isAllowedToDelete = await Group.find({ _id: req.body.groupId, creator: req.user._id })
 
         if (!isAllowedToDelete) {
-            return next(new AppError('You are not allowed to delete this group', 403))
+            return next(new AppError(req.polyglot.t('grups.notallowed.delete'), 403))
         }
 
         const group = await Group.deleteOne({ _id: req.body.groupId })

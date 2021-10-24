@@ -1,5 +1,16 @@
 {
     "users": {
+        "register": {
+            "password:invalid": "Password is invalid."
+        },
+        "login": {
+            "unable": "Unable to login."
+        },
+        "authorization": {
+            "unauthorized": "Unable to authenticate",
+            "unverified": "To login you have to confirm your email address.",
+            "notoken": "Unable to authenticate."
+        },
         "password": {
             "reset": {
                 "email:notfound": "User with this email not found.",
@@ -8,7 +19,22 @@
         }
     },
     "groups": {
-        
+        "already:joined": "You already are in this group.",
+        "invalid": {
+            "fields": "Invalid fields.",
+            "token": "Your invitation token is invalid."
+        },
+        "notfound": {
+            "one": "Group not found.",
+            "many": "No groups found.",
+            "many:todo": "No todos found"
+        },
+        "notallowed": {
+            "view": "You are not in this group.",
+            "update": "You are not allowed to update this group.",
+            "delete": "You are not allowed to delete this group.",
+            "delete:todo": "You are not allowed to delete this todo."
+        }
     },
     "errors": {
         "unable:to:find": "Unable to find.",

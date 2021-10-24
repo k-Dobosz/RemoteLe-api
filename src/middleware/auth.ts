@@ -18,19 +18,19 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
 
             if (user) {
                 if (user.role == 'unverified')
-                    return next(new AppError('You have to verify your email to use this route.', 401))
+                    return next(new AppError(req.polyglot.t('users.authorization.unverified'), 401))
 
                 req.token = token
                 req.user = user
                 next()
             } else {
                 res.status(401).send({
-                    error: 'Unable to authenticate'
+                    error: req.polyglot.t('users.authorization.unauthorized')
                 })
             }
         } else {
             res.status(401).send({
-                error: 'Authorization token not provided'
+                error: req.polyglot.t('users.authorization.notoken')
             })
         }
     } catch (e) {

@@ -27,7 +27,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     })
 
     if (!pass.test(user.password))
-        return next(new AppError('Password is invalid.', 400))
+        return next(new AppError(req.polyglot.t('users.register.password:invalid'), 400))
 
 
     try {
@@ -57,7 +57,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = await User.findByCredentials(req.body.email, req.body.password)
+        const user = await User.findByCredentials(req)
 
         const token = await user.generateAuthToken()
 

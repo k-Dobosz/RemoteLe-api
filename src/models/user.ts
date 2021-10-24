@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 import validator from 'validator'
 import { AppError } from '../middleware/error'
+import { Request } from 'express'
 
 interface IUser extends Document {
     fullname: string,
@@ -25,7 +26,7 @@ interface IUserDocument extends IUser, Document {
 }
 
 interface UserModel extends Model<IUserDocument> {
-    findByCredentials(email: String, password: String): IUserDocument
+    findByCredentials(req: Request): IUserDocument
 }
 
 const userSchema = new mongoose.Schema<IUserDocument>({
@@ -93,14 +94,14 @@ userSchema.methods.toJSON = function () {
     return userObject
 }
 
-userSchema.static('findByCredentials', async function findByCredentials(email, password) {
-    const user = await this.findOne({ email })
+userSchema.static('findByCredentials', async function findByCredentials(req) {
+    const user = await this.findOne({ email: req.body.email })
 
-    if (!user) throw new AppError('Unable to login.', 400)
+    if (!user) throw new AppError(req.polyglot.t('users.login.unable'), 400)
 
-    const isMatch = await bcrypt.compare(password, user.password)
+    const isMatch = await bcrypt.compare(req.body.password, user.password)
 
-    if (!isMatch) throw new AppError('Unable to login.', 400)
+    if (!isMatch) throw new AppError(req.polyglot.t('users.login.unable'), 400)
 
     return user
 })
